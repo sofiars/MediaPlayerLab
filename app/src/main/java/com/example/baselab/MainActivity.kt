@@ -14,20 +14,18 @@ import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
+    companion object{
+        var OPEN_DIRECTORY_REQUEST_CODE=1
+    }
+
+    private var contador : Int = 0
+    private var stopping = true
+    private var archivos :MutableList<DocumentFile> = mutableListOf()
     private lateinit var stop: Button
     private lateinit var anterior: Button
     private lateinit var reproducir: Button
     private lateinit var next: Button
-
-
     private lateinit var mediaPlayer: MediaPlayer
-    private var contador:Int=0
-    private var stopping=true
-
-    companion object{
-        var OPEN_DIRECTORY_REQUEST_CODE=1
-    }
-    private var files:MutableList<DocumentFile> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +37,6 @@ class MainActivity : AppCompatActivity() {
         var intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         startActivityForResult(intent, OPEN_DIRECTORY_REQUEST_CODE)
         setOnClickListeners(this)
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -51,12 +48,12 @@ class MainActivity : AppCompatActivity() {
                 for(file in rootTree!!.listFiles()){
                     try {
                         file.name?.let { Log.e("Archivo", it) }
-                        files.add(file)
+                        archivos.add(file)
                     }catch (e: Exception){
                         Log.e("Error", "No pude ejecutar el archivo" + file.uri)
                     }
                 }
-                mediaPlayer = MediaPlayer.create(this, files[contador].uri )
+                mediaPlayer = MediaPlayer.create(this, archivos[contador].uri )
             }
         }
     }
@@ -66,12 +63,12 @@ class MainActivity : AppCompatActivity() {
             if(stopping){
                 stopping = false
                 mediaPlayer.start()
-                Toast.makeText(context, "Playing...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Playing music...", Toast.LENGTH_SHORT).show()
                 reproducir.setText("Pause")
             }else{
                 stopping = true
                 mediaPlayer.pause()
-                Toast.makeText(context, "Stopping...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Stopping music...", Toast.LENGTH_SHORT).show()
                 reproducir.setText("Play")
             }
 
@@ -82,33 +79,33 @@ class MainActivity : AppCompatActivity() {
             stopping = true
             reproducir.setText("Play")
             mediaPlayer.stop()
-            Toast.makeText(context, "Stopping...", Toast.LENGTH_SHORT).show()
-            mediaPlayer = MediaPlayer.create(this, files[contador].uri )
+            Toast.makeText(context, "Stopping music...", Toast.LENGTH_SHORT).show()
+            mediaPlayer = MediaPlayer.create(this, archivos[contador].uri )
         }
         anterior.setOnClickListener{
             if(contador - 1 < 0){
                 mediaPlayer.stop()
-                contador = files.size-1
-                mediaPlayer = MediaPlayer.create(context, files[contador].uri )
+                contador = archivos.size-1
+                mediaPlayer = MediaPlayer.create(context, archivos[contador].uri )
                 mediaPlayer.start()
             }else{
                 mediaPlayer.stop()
                 contador --
-                mediaPlayer = MediaPlayer.create(context, files[contador].uri )
+                mediaPlayer = MediaPlayer.create(context, archivos[contador].uri )
                 mediaPlayer.start()
 
             }
         }
         next.setOnClickListener{
-            if(contador + 1 > files.size - 1){
+            if(contador + 1 > archivos.size - 1){
                 mediaPlayer.stop()
                 contador = 0
-                mediaPlayer = MediaPlayer.create(context, files[contador].uri )
+                mediaPlayer = MediaPlayer.create(context, archivos[contador].uri )
                 mediaPlayer.start()
             }else{
                 mediaPlayer.stop()
                 contador ++
-                mediaPlayer = MediaPlayer.create(context, files[contador].uri )
+                mediaPlayer = MediaPlayer.create(context, archivos[contador].uri )
                 mediaPlayer.start()
             }
         }
